@@ -1,0 +1,12 @@
+/data*
+hist*
+train*
+test*
+*.gz
+.ipynb*
+readme.txt
+.DS_Store
+.env
+assign1*
+ds-env/
+valida*

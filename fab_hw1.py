@@ -1,7 +1,7 @@
 
 # coding: utf-8
 
-# In[10]:
+# In[39]:
 
 import random
 import os.path
@@ -14,12 +14,9 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.naive_bayes import GaussianNB
 
-#from pyspark.sql import SQLContext, Row
-#from pyspark.sql.types import *
-
-get_ipython().magic(u'matplotlib inline')
 import matplotlib.pyplot as plt
 plt.style.use('fivethirtyeight')
+get_ipython().magic(u'matplotlib inline')
 
 
 # In[2]:
@@ -234,6 +231,11 @@ X_test, y_test = get_train_xy(df_test, selected_categ_cols)
 predicted_test = model_LR.predict(X_test)
 print "Test3M accuracy:", metrics.accuracy_score(y_test, predicted_test)
 print "Test3M auc:", metrics.roc_auc_score(y_test, predicted_test)
+
+
+# In[ ]:
+
+Test 
 
 
 # In[ ]:

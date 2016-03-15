@@ -1,7 +1,15 @@
 
 # coding: utf-8
 
-# In[39]:
+# In[4]:
+
+###
+# @author: Nwamaka Nzeocha and Fabian Okeke
+# @course: CS 5304/Data Science in the Wild
+####
+
+
+# In[2]:
 
 import random
 import os.path
@@ -14,12 +22,19 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.naive_bayes import GaussianNB
 
+import plotly as py
+import plotly.graph_objs as go
+from plotly.offline import download_plotlyjs, init_notebook_mode, iplot
+py.offline.init_notebook_mode()
+from plotly.offline import plot
+from plotly.graph_objs import Histogram
+
 import matplotlib.pyplot as plt
 plt.style.use('fivethirtyeight')
 get_ipython().magic(u'matplotlib inline')
 
 
-# In[2]:
+# In[137]:
 
 def exists(filepath):
     return os.path.exists(filepath)
@@ -57,33 +72,43 @@ else:
     print "Newly created files: train5M.txt, validation2M.txt, test3M.txt."
 
 
-# # Plot histograms and store images
+# # Load train5M
 
-# In[19]:
+# In[78]:
 
-for col in range(1,40):
-    filepath = 'histo-file/f%d.txt' % col
-    imgpath = 'histo-img/f%d.png' % col
-    title = 'feature %d' % col
+df_train = pd.read_table('train5M.txt', header=None)
 
-    histo_df = pd.read_csv(filepath, header=None, names=["val", "freq"])
-    ax = histo_df.plot(x='val', y='freq', logy='True', title=title, xlim=(0), figsize=(25,10))
-    fig = ax.get_figure()
-    fig.savefig(imgpath)
-print "Histogram plot completed!"
+
+# # Plot histograms
+
+# In[81]:
+
+# plotly allows you to only make 50 plots per day
+for i in range(1, 40):
+    label = "feat" + str(i)
+    trace1 = go.Histogram(x=df_train[i])
+    
+    data = [trace1]
+    layout = go.Layout(
+        title= label + ' histogram',
+        xaxis=dict(title= label + 'values', autorange=True),
+        yaxis=dict(title='log occurance count', type='log', autorange=True)
+    )
+    fig = go.Figure(data=data, layout=layout)
+    iplot(fig)
 
 
 # # Select categorical features that should be kept out of all 26 possible cases
 
-# In[20]:
+# In[134]:
 
-selected_categ_cols = [14,15,18,19,21,22,26,27,30,32,33,35,36,38]
+selected_categ_cols = [15,20,23,24,26,27,28,30,31,36,37,39]
 len(selected_categ_cols)
 
 
 # # Normalize integer cols and compute rate-value on categorical cols
 
-# In[24]:
+# In[125]:
 
 def get_train_xy(mdf, selected_categorical_cols):
     """
@@ -97,19 +122,15 @@ def get_train_xy(mdf, selected_categorical_cols):
     cols_to_keep = int_cols + selected_categorical_cols  
     y = mdf[0].values
     X = mdf[cols_to_keep].fillna(0)
-    print "X and y extracted..."
     
     # normalize integers features
     X[int_cols] = X[int_cols].apply(lambda x: (x - x.min()) / (x.max() - x.min()))
-    print "X normalization complete..."
     
     # compute weighted freq: each column entry is freq/cumulative_freq
     cum_freq = len(mdf) * 1.0
     for col in selected_categorical_cols:
         freq = m_count_distinct(X[col].values)
         X[col] = X[col].apply(lambda x: freq.get(x)/cum_freq) 
-    print "Data preparation complete!"
-
     return X, y
 
 def m_count_distinct(col):
@@ -141,28 +162,27 @@ def score_higher_freq(y):
 
 # # Prepare training and validation data
 
-# In[25]:
+# In[112]:
 
-df_train = pd.read_table('train5M.txt', header=None)
 X_train, y_train = get_train_xy(df_train, selected_categ_cols)
 
 
-# In[26]:
+# In[113]:
 
 df_va = pd.read_table('validation2M.txt', header=None)
 X_va, y_va = get_train_xy(df_va, selected_categ_cols)
 
 
-# # Compute baseline score that always predicts value with higher freq
+# # Accuracy score if we naively predict 1 every time
 
-# In[27]:
+# In[ ]:
 
 print "Baseline score:", score_higher_freq(y_va)
 
 
 # # Fit models and predict
 
-# In[28]:
+# In[122]:
 
 model_NB = GaussianNB()
 model_NB.fit(X_train, y_train)
@@ -233,12 +253,30 @@ print "Test3M accuracy:", metrics.accuracy_score(y_test, predicted_test)
 print "Test3M auc:", metrics.roc_auc_score(y_test, predicted_test)
 
 
-# In[ ]:
-
-Test 
-
+# # Test38M: load files in chunks and aggregate metrics on chunks
 
 # In[ ]:
 
+all_chunks_accuracy = []
+all_chunks_auc = []
+chunksize = 10 ** 6
+i=1
 
+for chunk in pd.read_table("test38M.txt", chunksize=chunksize):
+    chunk.columns = range(40) 
+    X_chunk, y_chunk = get_train_xy(chunk, selected_categ_cols)
+    
+    # predict on y-chunk
+    predicted_chunk = model_LR.predict(X_chunk)
+    chunk_accuracy = metrics.accuracy_score(y_chunk, predicted_chunk)
+    chunk_auc = metrics.roc_auc_score(y_chunk, predicted_chunk)
+    
+    all_chunks_accuracy.append(chunk_accuracy)
+    all_chunks_auc.append(chunk_auc)
+    print "Done with chunk %d." % i
+    i += 1
+
+print "================="
+print "avg accuracy", sum(all_chunks_accuracy)/len(all_chunks_accuracy)
+print "avg auc", sum(all_chunks_auc)/len(all_chunks_auc)
 

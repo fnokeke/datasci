@@ -9,7 +9,7 @@
 ####
 
 
-# In[2]:
+# In[ ]:
 
 import random
 import os.path
@@ -81,7 +81,7 @@ df_train = pd.read_table('train5M.txt', header=None)
 
 # # Plot histograms
 
-# In[81]:
+# In[ ]:
 
 # plotly allows you to only make 50 plots per day
 for i in range(1, 40):

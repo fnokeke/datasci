@@ -3,6 +3,7 @@ hist*
 train*
 test*
 *.gz
+*.zip
 .ipynb*
 readme.txt
 .DS_Store

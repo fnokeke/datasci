@@ -3,12 +3,12 @@ hist*
 train*
 test*
 *.gz
-*.zip
-.ipynb*
 readme.txt
 .DS_Store
 .env
+*.zip
 assign1*
 ds-env/
 valida*
 *.csv
+.ipynb_checkpoints

@@ -12,3 +12,4 @@ ds-env/
 valida*
 *.csv
 .ipynb_checkpoints
+ml-10M*

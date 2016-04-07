@@ -49,9 +49,27 @@ else:
 
 # # Using train data, learn ALS model
 
-# In[ ]:
+# In[56]:
+
+import contextlib
+import itertools
+from math import sqrt
+from operator import add
+import sys
+
+from docopt import docopt
+from pyspark import SparkConf, SparkContext
+from pyspark.mllib.recommendation import ALS
 
 
+SPARK_EXECUTOR_MEMORY = '2g'
+SPARK_APP_NAME = 'movieRecommender'
+SPARK_MASTER = 'local'
+
+
+# In[50]:
+
+sc
 
 
 # # Using validation data, choose different regularization parameters with different latent factors
@@ -62,6 +80,20 @@ else:
 
 
 # # Using test data, test chosen model and report metric error
+
+# In[ ]:
+
+
+
+
+# # Use ALS model and ratings file to return output of predicted recommendations
+
+# In[48]:
+
+def generate_recommendations(modelALS, ratings):
+    prediction = []
+    return prediction
+
 
 # In[ ]:
 

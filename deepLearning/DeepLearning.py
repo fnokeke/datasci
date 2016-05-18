@@ -27,11 +27,10 @@
 
 # # Add libraries and relevant functions
 
-# In[162]:
+# In[7]:
 
 import random
 import os.path
-import pandas as pd
 import numpy as np
 
 from sklearn import metrics
@@ -52,11 +51,6 @@ get_ipython().magic(u'matplotlib inline')
 #############
 # helper functions
 #############
-
-###
-# shell command
-##gunzip -c a4_smvl_trn.gz | head -n 100000 | gshuf | head -n 10000 > trainSmall # Split into smaller file
-###
 
 def exists(filepath):
     """
@@ -119,7 +113,7 @@ def get_model_results(model, training_data, test_data):
     if model == "LR":
         model = LogisticRegression()
     elif model == "TF":
-        model = learn.TensorFlowDNNClassifier(hidden_units=[150, 40], n_classes=2, steps=10, batch_size=25, learning_rate=0.002, optimizer="Adam")
+        model = learn.TensorFlowDNNClassifier(hidden_units=[150, 40], n_classes=2, steps=500, batch_size=25, learning_rate=0.002, optimizer="Adam")
      
     # fit model
     start = time()
@@ -145,21 +139,39 @@ def get_model_results(model, training_data, test_data):
     return (y_proba, y_pred, y_test, accuracy, auc, brier_loss)
 
 
+# # Download files if they don't exist
+
+# In[180]:
+
+if exists('a4_smvl_trn.gz') and exists('a4_smvl_val.gz') and exists('a4_smvl_tst.gz'):
+    print 'Dataset available. Continue...'
+else:
+    'Download these files: (a4_smvl_trn.gz, a4_smvl_val.gz, a4_smvl_tst.gz) before you continue.'
+
+
 # # Load dataset
 
-# In[163]:
+# In[4]:
 
 X_train, y_train = get_data('trainSmall')
 
 
-# In[164]:
+# In[5]:
 
 X_test, y_test = get_data('vaSmall')
 
 
+# # Dataset shape
+
+# In[184]:
+
+print X_train.shape
+print X_test.shape
+
+
 # # Get results for LR
 
-# In[165]:
+# In[9]:
 
 results_LR = get_model_results("LR", [X_train, y_train], [X_test, y_test])
 print "****Results_LR done****"
@@ -167,7 +179,7 @@ print "****Results_LR done****"
 
 # # Get results for Tensor Flow MLP
 
-# In[166]:
+# In[6]:
 
 results_TF = get_model_results("TF", [X_train, y_train], [X_test, y_test])
 print "****Results_TF done****"
@@ -175,7 +187,7 @@ print "****Results_TF done****"
 
 # # ROC curves, Brier Score, Accuracy scores, AUC scores
 
-# In[167]:
+# In[10]:
 
 y_predictions = {
     'Logistic Regression': results_LR,

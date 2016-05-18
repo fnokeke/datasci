@@ -18,7 +18,7 @@
 # 
 # **libraries:**
 #  - pip install https://storage.googleapis.com/tensorflow/mac/tensorflow-0.8.0-py2-none-any.whl 
-#  - pip install -r requirements.txt
+#  - pip install numpy scipy scikit-learn matplotlib
 # 
 # **dataset:**
 #  - https://s3.amazonaws.com/giyengar-cs5304/a4_smvl_tst.gz
@@ -27,7 +27,7 @@
 
 # # Add libraries and relevant functions
 
-# In[7]:
+# In[21]:
 
 import random
 import os.path
@@ -113,7 +113,7 @@ def get_model_results(model, training_data, test_data):
     if model == "LR":
         model = LogisticRegression()
     elif model == "TF":
-        model = learn.TensorFlowDNNClassifier(hidden_units=[150, 40], n_classes=2, steps=500, batch_size=25, learning_rate=0.002, optimizer="Adam")
+        model = learn.TensorFlowDNNClassifier(hidden_units=[150, 40], n_classes=2, steps=1000, batch_size=25, learning_rate=0.0002, optimizer="Adam")
      
     # fit model
     start = time()
@@ -147,24 +147,28 @@ if exists('a4_smvl_trn.gz') and exists('a4_smvl_val.gz') and exists('a4_smvl_tst
     print 'Dataset available. Continue...'
 else:
     'Download these files: (a4_smvl_trn.gz, a4_smvl_val.gz, a4_smvl_tst.gz) before you continue.'
+    # os.system('wget xyz')
 
 
 # # Load dataset
 
-# In[4]:
+# In[14]:
 
+# gunzip -c a4_smvl_trn.gz | head -n 100000 |  gshuf | head -n 100000 > trainSmall
 X_train, y_train = get_data('trainSmall')
 
 
-# In[5]:
+# In[15]:
 
-X_test, y_test = get_data('vaSmall')
+# gunzip -c a4_smvl_tst.gz | head -n 100000 |  gshuf | head -n 100000 > testSmall
+X_test, y_test = get_data('testSmall')
 
 
 # # Dataset shape
 
 # In[184]:
 
+# limit to size 100K since performance is still good
 print X_train.shape
 print X_test.shape
 
@@ -179,7 +183,7 @@ print "****Results_LR done****"
 
 # # Get results for Tensor Flow MLP
 
-# In[6]:
+# In[19]:
 
 results_TF = get_model_results("TF", [X_train, y_train], [X_test, y_test])
 print "****Results_TF done****"
